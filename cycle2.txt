@@ -1,0 +1,430 @@
+Create table regions
+CREATE TABLE regions (
+    region_id INT PRIMARY KEY,
+    region_name VARCHAR(50)
+);
+
+
+2. Create table countries
+sql
+CREATE TABLE countries (
+    country_id CHAR(2) PRIMARY KEY,
+    country_name VARCHAR(50),
+    region_id INT,
+    FOREIGN KEY (region_id) REFERENCES regions(region_id)
+);
+
+3. Create table locations
+CREATE TABLE locations (
+    location_id INT PRIMARY KEY,
+    street_address VARCHAR(100),
+    postal_code VARCHAR(12),
+    city VARCHAR(50),
+    state_province VARCHAR(50),
+    country_id CHAR(2),
+    FOREIGN KEY (country_id) REFERENCES countries(country_id)
+);
+
+
+4. Create table departments
+sql
+Copy code
+CREATE TABLE departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(50),
+    location_id INT,
+    FOREIGN KEY (location_id) REFERENCES locations(location_id)
+);
+
+
+5. Create table employees
+sql
+Copy code
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    phone_number VARCHAR(20),
+    hire_date DATE,
+    job_id VARCHAR(10),
+    salary DECIMAL(10, 2),
+    manager_id INT,
+    department_id INT,
+    FOREIGN KEY (job_id) REFERENCES jobs(job_id),
+    FOREIGN KEY (manager_id) REFERENCES employees(employee_id),
+    FOREIGN KEY (department_id) REFERENCES departments(department_id)
+);
+
+
+6. Create table dependents
+sql
+Copy code
+CREATE TABLE dependents (
+    dependent_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    relationship VARCHAR(50),
+    employee_id INT,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+);
+
+
+7. Create table jobs
+sql
+Copy code
+CREATE TABLE jobs (
+    job_id VARCHAR(10) PRIMARY KEY,
+    job_title VARCHAR(50),
+    min_salary DECIMAL(10, 2),
+    max_salary DECIMAL(10, 2)
+);
+
+8-14. Insert Records into Tables (Example):
+sql
+Copy code
+-- Inserting into regions
+INSERT INTO regions (region_id, region_name) VALUES (1, 'Asia'), (2, 'Europe');
+
+-- Inserting into countries
+INSERT INTO countries (country_id, country_name, region_id) VALUES ('IN', 'India', 1), ('US', 'United States', 2);
+
+-- Inserting into locations
+INSERT INTO locations (location_id, street_address, postal_code, city, state_province, country_id)
+VALUES (1700, '123 Street', '12345', 'New Delhi', 'Delhi', 'IN');
+
+-- Inserting into departments
+INSERT INTO departments (department_id, department_name, location_id) VALUES (10, 'Finance', 1700), (20, 'HR', 1700);
+
+-- Inserting into jobs
+INSERT INTO jobs (job_id, job_title, min_salary, max_salary) VALUES (1, 'Manager', 5000, 15000), (2, 'Developer', 3000, 10000);
+
+-- Inserting into employees
+INSERT INTO employees (employee_id, first_name, last_name, email, phone_number, hire_date, job_id, salary, manager_id, department_id)
+VALUES (101, 'John', 'Doe', 'johndoe@example.com', '1234567890', '2020-01-15', 1, 12000, NULL, 10);
+
+-- Inserting into dependents
+INSERT INTO dependents (dependent_id, first_name, last_name, relationship, employee_id)
+VALUES (1, 'Jane', 'Doe', 'Spouse', 101);
+
+
+15. Display All Records:
+sql
+Copy code
+SELECT * FROM regions;
+SELECT * FROM countries;
+SELECT * FROM locations;
+SELECT * FROM departments;
+SELECT * FROM jobs;
+SELECT * FROM employees;
+SELECT * FROM dependents;
+
+
+16. Find all employees located at location 1700:
+sql
+Copy code
+SELECT * FROM employees WHERE department_id IN (SELECT department_id FROM departments WHERE location_id = 1700);
+
+
+17. Find all employees not located at location 1700:
+sql
+Copy code
+SELECT * FROM employees WHERE department_id NOT IN (SELECT department_id FROM departments WHERE location_id = 1700);
+
+
+18. Find employees with the highest salary:
+sql
+Copy code
+SELECT * FROM employees WHERE salary = (SELECT MAX(salary) FROM employees);
+
+
+19. Employees with salary greater than average salary:
+sql
+Copy code
+SELECT * FROM employees WHERE salary > (SELECT AVG(salary) FROM employees);
+
+
+20. Departments with employees having salary > 10,000:
+sql
+Copy code
+SELECT department_id, department_name
+FROM departments
+WHERE department_id IN (
+    SELECT department_id FROM employees WHERE salary > 10000
+);
+
+
+21. Departments without employees with salary > 10,000:
+sql
+Copy code
+SELECT department_id, department_name
+FROM departments
+WHERE department_id NOT IN (
+    SELECT department_id FROM employees WHERE salary > 10000
+);
+
+
+22. Employees with salary > lowest salary in each department:
+sql
+Copy code
+SELECT * FROM employees WHERE salary > (SELECT MIN(salary) FROM employees);
+
+
+23. Employees with salary >= highest salary in every department:
+sql
+Copy code
+SELECT * FROM employees WHERE salary >= (SELECT MAX(salary) FROM employees);
+
+
+24. Average of average salary of departments:
+sql
+Copy code
+SELECT AVG(avg_salary)
+FROM (SELECT AVG(salary) AS avg_salary FROM employees GROUP BY department_id) AS dept_avg;
+
+
+25. Salaries, average, and difference:
+sql
+Copy code
+SELECT employee_id, salary, 
+    (SELECT AVG(salary) FROM employees) AS avg_salary, 
+    salary - (SELECT AVG(salary) FROM employees) AS salary_diff
+FROM employees;
+
+
+26. Employees with salary higher than department average:
+sql
+Copy code
+SELECT * FROM employees AS e
+WHERE salary > (SELECT AVG(salary) FROM employees WHERE department_id = e.department_id);
+
+
+27. Employees without dependents:
+sql
+Copy code
+SELECT * FROM employees WHERE employee_id NOT IN (SELECT employee_id FROM dependents);
+
+
+28. Employees of departments 1, 2, and 3:
+sql
+Copy code
+SELECT first_name, last_name, department_name 
+FROM employees 
+JOIN departments ON employees.department_id = departments.department_id 
+WHERE departments.department_id IN (1, 2, 3);
+
+
+29. Employees in departments 1, 2, 3 with salary > 10,000:
+sql
+Copy code
+SELECT first_name, last_name, job_title, department_name 
+FROM employees 
+JOIN jobs ON employees.job_id = jobs.job_id
+JOIN departments ON employees.department_id = departments.department_id 
+WHERE departments.department_id IN (1, 2, 3) AND salary > 10000;
+
+30. Display Department name, street address, postal code, country name, and region name of all departments:
+sql
+Copy code
+SELECT d.department_name, l.street_address, l.postal_code, c.country_name, r.region_name
+FROM departments d
+JOIN locations l ON d.location_id = l.location_id
+JOIN countries c ON l.country_id = c.country_id
+JOIN regions r ON c.region_id = r.region_id;
+
+
+31. Find employees who have or do not have a department:
+sql
+Copy code
+SELECT e.first_name, e.last_name, e.department_id, d.department_name
+FROM employees e
+LEFT JOIN departments d ON e.department_id = d.department_id;
+
+
+32. Find employees whose first name contains the letter 'Z':
+sql
+Copy code
+SELECT e.first_name, e.last_name, d.department_name, l.city, l.state_province
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+JOIN locations l ON d.location_id = l.location_id
+WHERE e.first_name LIKE '%Z%';
+
+
+33. Find all departments, including those without employees:
+sql
+Copy code
+SELECT e.first_name, e.last_name, d.department_id, d.department_name
+FROM departments d
+LEFT JOIN employees e ON d.department_id = e.department_id;
+
+
+34. Find employees and their managers:
+sql
+Copy code
+SELECT e.first_name AS employee_name, m.first_name AS manager_name
+FROM employees e
+LEFT JOIN employees m ON e.manager_id = m.employee_id;
+
+
+35. Find employees who work in the same department as the employee with the last name 'Taylor':
+sql
+Copy code
+SELECT e.first_name, e.last_name, e.department_id
+FROM employees e
+WHERE e.department_id = (
+    SELECT department_id FROM employees WHERE last_name = 'Taylor'
+);
+
+
+36. Calculate the difference between the maximum salary of the job and the employee's salary:
+sql
+Copy code
+SELECT j.job_title, e.first_name || ' ' || e.last_name AS employee_name, 
+       (j.max_salary - e.salary) AS salary_difference
+FROM employees e
+JOIN jobs j ON e.job_id = j.job_id;
+
+
+37. Calculate the average salary, and the number of employees receiving commissions in each department:
+sql
+Copy code
+SELECT d.department_name, AVG(e.salary) AS average_salary, COUNT(e.employee_id) AS num_employees
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+GROUP BY d.department_name;
+
+
+38. Create a view with employee details for those in the department whose location is in ‘Delhi’:
+sql
+Copy code
+CREATE VIEW employee_details_delhi AS
+SELECT e.first_name, e.last_name, e.employee_id, e.phone_number, j.job_title, d.department_name, m.first_name AS manager_name
+FROM employees e
+JOIN jobs j ON e.job_id = j.job_id
+JOIN departments d ON e.department_id = d.department_id
+JOIN locations l ON d.location_id = l.location_id
+LEFT JOIN employees m ON e.manager_id = m.employee_id
+WHERE l.city = 'Delhi';
+
+
+39. Use the above-created view to obtain the names of employees whose job title is ‘Manager’ and department is ‘Finance’:
+sql
+Copy code
+SELECT first_name, last_name
+FROM employee_details_delhi
+WHERE job_title = 'Manager' AND department_name = 'Finance';
+
+
+40. Check if it's possible to update the phone number of an employee whose first name is 'Smith' using the view:
+sql
+Copy code
+UPDATE employee_details_delhi
+SET phone_number = '9876543210'
+WHERE first_name = 'Smith';
+Note: If the view allows updates, it will succeed; otherwise, an error will occur if the view is non-updatable.
+
+41. Display details of employees who have no dependents:
+sql
+Copy code
+SELECT * FROM employees
+WHERE employee_id NOT IN (SELECT employee_id FROM dependents);
+
+
+42. Display the details of employees whose manager ID is 101 or 201 (using UNION clause):
+sql
+Copy code
+SELECT * FROM employees WHERE manager_id = 101
+UNION
+SELECT * FROM employees WHERE manager_id = 201;
+
+
+43. Display the details of employees who have at least one dependent:
+sql
+Copy code
+SELECT * FROM employees
+WHERE employee_id IN (SELECT employee_id FROM dependents);
+
+
+
+8. Insert records into table regions:
+sql
+Copy code
+INSERT INTO regions (region_id, region_name)
+VALUES 
+(1, 'Europe'),
+(2, 'Americas'),
+(3, 'Asia'),
+(4, 'Middle East and Africa');
+
+
+9. Insert records into table countries:
+sql
+Copy code
+INSERT INTO countries (country_id, country_name, region_id)
+VALUES 
+('IT', 'Italy', 1),
+('US', 'United States', 2),
+('JP', 'Japan', 3),
+('IN', 'India', 3),
+('ZA', 'South Africa', 4);
+
+
+10. Insert records into table locations:
+sql
+Copy code
+INSERT INTO locations (location_id, street_address, postal_code, city, state_province, country_id)
+VALUES 
+(1000, 'Via Roma 100', '00100', 'Rome', 'Lazio', 'IT'),
+(1700, '2000 Broadway', '94111', 'San Francisco', 'California', 'US'),
+(1800, 'Nishi Shinjuku 3-2', '160-0023', 'Tokyo', 'Tokyo', 'JP'),
+(1900, 'Block B, ITPL', '560066', 'Bangalore', 'Karnataka', 'IN'),
+(2000, '1 Mandela Way', '8001', 'Cape Town', 'Western Cape', 'ZA');
+
+
+11. Insert records into table departments:
+sql
+Copy code
+INSERT INTO departments (department_id, department_name, location_id)
+VALUES 
+(10, 'Administration', 1000),
+(20, 'Marketing', 1700),
+(30, 'Sales', 1700),
+(40, 'Finance', 1800),
+(50, 'IT', 1900);
+
+
+12. Insert records into table employees:
+sql
+Copy code
+INSERT INTO employees (employee_id, first_name, last_name, email, phone_number, hire_date, job_id, salary, manager_id, department_id)
+VALUES 
+(101, 'John', 'Doe', 'jdoe@example.com', '1234567890', '2020-01-15', 'J01', 12000, NULL, 10),
+(102, 'Jane', 'Smith', 'jsmith@example.com', '9876543210', '2019-03-10', 'J02', 8000, 101, 20),
+(103, 'Alice', 'Johnson', 'ajohnson@example.com', '5556667777', '2018-11-25', 'J03', 15000, 101, 30),
+(104, 'Robert', 'Taylor', 'rtaylor@example.com', '8889990000', '2021-07-01', 'J04', 11000, 102, 40),
+(105, 'Linda', 'Williams', 'lwilliams@example.com', '4445556666', '2022-05-12', 'J05', 9500, 103, 50);
+
+
+13. Insert records into table dependents:
+sql
+Copy code
+INSERT INTO dependents (dependent_id, first_name, last_name, relationship, employee_id)
+VALUES 
+(1, 'Anna', 'Doe', 'Daughter', 101),
+(2, 'Michael', 'Smith', 'Son', 102),
+(3, 'Emily', 'Johnson', 'Spouse', 103),
+(4, 'Sophia', 'Taylor', 'Daughter', 104),
+(5, 'James', 'Williams', 'Son', 105);
+
+
+14. Insert records into table jobs:
+sql
+Copy code
+INSERT INTO jobs (job_id, job_title, min_salary, max_salary)
+VALUES 
+('J01', 'Administrator', 10000, 15000),
+('J02', 'Marketing Specialist', 7000, 12000),
+('J03', 'Sales Manager', 12000, 18000),
+('J04', 'Finance Analyst', 10000, 14000),
+('J05', 'IT Specialist', 9000, 13000);
