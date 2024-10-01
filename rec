@@ -1,0 +1,328 @@
+mysql> CREATE TABLE jobs (
+    ->     job_id VARCHAR(10) PRIMARY KEY,
+    ->     job_title VARCHAR(50),
+    ->     min_salary DECIMAL(10, 2),
+    ->     max_salary DECIMAL(10, 2)
+    -> );
+Query OK, 0 rows affected (0.67 sec)
+
+mysql> 
+mysql> CREATE TABLE regions (
+    ->     region_id INT PRIMARY KEY,
+    ->     region_name VARCHAR(50)
+    -> );
+Query OK, 0 rows affected (0.46 sec)
+
+mysql> 
+mysql> CREATE TABLE countries (
+    ->     country_id CHAR(2) PRIMARY KEY,
+    ->     country_name VARCHAR(50),
+    ->     region_id INT,
+    ->     FOREIGN KEY (region_id) REFERENCES regions(region_id)
+    -> );
+Query OK, 0 rows affected (0.43 sec)
+
+mysql> 
+mysql> CREATE TABLE locations (
+    ->     location_id INT PRIMARY KEY,
+    ->     street_address VARCHAR(100),
+    ->     postal_code VARCHAR(12),
+    ->     city VARCHAR(50),
+    ->     state_province VARCHAR(50),
+    ->     country_id CHAR(2),
+    ->     FOREIGN KEY (country_id) REFERENCES countries(country_id)
+    -> );
+Query OK, 0 rows affected (0.47 sec)
+
+mysql> 
+mysql> CREATE TABLE departments (
+    ->     department_id INT PRIMARY KEY,
+    ->     department_name VARCHAR(50),
+    ->     location_id INT,
+    ->     FOREIGN KEY (location_id) REFERENCES locations(location_id)
+    -> );
+Query OK, 0 rows affected (0.45 sec)
+
+mysql> 
+mysql> CREATE TABLE employees (
+    ->     employee_id INT PRIMARY KEY,
+    ->     first_name VARCHAR(50),
+    ->     last_name VARCHAR(50),
+    ->     email VARCHAR(100),
+    ->     phone_number VARCHAR(20),
+    ->     hire_date DATE,
+    ->     job_id VARCHAR(10),
+    ->     salary DECIMAL(10, 2),
+    ->     manager_id INT,
+    ->     department_id INT,
+    ->     FOREIGN KEY (job_id) REFERENCES jobs(job_id),
+    ->     FOREIGN KEY (manager_id) REFERENCES employees(employee_id),
+    ->     FOREIGN KEY (department_id) REFERENCES departments(department_id)
+    -> );
+Query OK, 0 rows affected (0.51 sec)
+
+mysql> 
+mysql> CREATE TABLE dependents (
+    ->     dependent_id INT PRIMARY KEY,
+    ->     first_name VARCHAR(50),
+    ->     last_name VARCHAR(50),
+    ->     relationship VARCHAR(50),
+    ->     employee_id INT,
+    ->     FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+    -> );
+Query OK, 0 rows affected (0.36 sec)
+
+mysql> INSERT INTO regions (region_id, region_name) VALUES 
+    -> (1, 'Europe'),
+    -> (2, 'Americas'),
+    -> (3, 'Asia'),
+    -> (4, 'Middle East and Africa');
+Query OK, 4 rows affected (0.11 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO countries (country_id, country_name, region_id) VALUES 
+    -> ('IT', 'Italy', 1),
+    -> ('US', 'United States', 2),
+    -> ('JP', 'Japan', 3),
+    -> ('IN', 'India', 3),
+    -> ('ZA', 'South Africa', 4);
+Query OK, 5 rows affected (0.07 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO locations (location_id, street_address, postal_code, city, state_province, country_id) VALUES 
+    -> (1000, 'Via Roma 100', '00100', 'Rome', 'Lazio', 'IT'),
+    -> (1700, '2000 Broadway', '94111', 'San Francisco', 'California', 'US'),
+    -> (1800, 'Nishi Shinjuku 3-2', '160-0023', 'Tokyo', 'Tokyo', 'JP'),
+    -> (1900, 'Block B, ITPL', '560066', 'Bangalore', 'Karnataka', 'IN'),
+    -> (2000, '1 Mandela Way', '8001', 'Cape Town', 'Western Cape', 'ZA');
+Query OK, 5 rows affected (0.06 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO departments (department_id, department_name, location_id) VALUES 
+    -> (10, 'Administration', 1000),
+    -> (20, 'Marketing', 1700),
+    -> (30, 'Sales', 1700),
+    -> (40, 'Finance', 1800),
+    -> (50, 'IT', 1900);
+Query OK, 5 rows affected (0.06 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO jobs (job_id, job_title, min_salary, max_salary) VALUES 
+    -> ('J01', 'Administrator', 10000, 15000),
+    -> ('J02', 'Marketing Specialist', 7000, 12000),
+    -> ('J03', 'Sales Manager', 12000, 18000),
+    -> ('J04', 'Finance Analyst', 10000, 14000),
+    -> ('J05', 'IT Specialist', 9000, 13000);
+Query OK, 5 rows affected (0.06 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO employees (employee_id, first_name, last_name, email, phone_number, hire_date, job_id, salary, manager_id, department_id) VALUES 
+    -> (101, 'John', 'Doe', 'jdoe@example.com', '1234567890', '2020-01-15', 'J01', 12000, NULL, 10),
+    -> (102, 'Jane', 'Smith', 'jsmith@example.com', '9876543210', '2019-03-10', 'J02', 8000, 101, 20),
+    -> (103, 'Alice', 'Johnson', 'ajohnson@example.com', '5556667777', '2018-11-25', 'J03', 15000, 101, 30),
+    -> (104, 'Robert', 'Taylor', 'rtaylor@example.com', '8889990000', '2021-07-01', 'J04', 11000, 102, 40),
+    -> (105, 'Linda', 'Williams', 'lwilliams@example.com', '4445556666', '2022-05-12', 'J05', 9500, 103, 50);
+Query OK, 5 rows affected (0.18 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO dependents (dependent_id, first_name, last_name, relationship, employee_id) VALUES 
+    -> (1, 'Anna', 'Doe', 'Daughter', 101),
+    -> (2, 'Michael', 'Smith', 'Son', 102),
+    -> (3, 'Emily', 'Johnson', 'Spouse', 103),
+    -> (4, 'Sophia', 'Taylor', 'Daughter', 104),
+    -> (5, 'James', 'Williams', 'Son', 105);
+Query OK, 5 rows affected (0.04 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM regions;
++-----------+------------------------+
+| region_id | region_name            |
++-----------+------------------------+
+|         1 | Europe                 |
+|         2 | Americas               |
+|         3 | Asia                   |
+|         4 | Middle East and Africa |
++-----------+------------------------+
+4 rows in set (0.01 sec)
+
+mysql> SELECT * FROM countries;
++------------+---------------+-----------+
+| country_id | country_name  | region_id |
++------------+---------------+-----------+
+| IN         | India         |         3 |
+| IT         | Italy         |         1 |
+| JP         | Japan         |         3 |
+| US         | United States |         2 |
+| ZA         | South Africa  |         4 |
++------------+---------------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM locations;
++-------------+--------------------+-------------+---------------+----------------+------------+
+| location_id | street_address     | postal_code | city          | state_province | country_id |
++-------------+--------------------+-------------+---------------+----------------+------------+
+|        1000 | Via Roma 100       | 00100       | Rome          | Lazio          | IT         |
+|        1700 | 2000 Broadway      | 94111       | San Francisco | California     | US         |
+|        1800 | Nishi Shinjuku 3-2 | 160-0023    | Tokyo         | Tokyo          | JP         |
+|        1900 | Block B, ITPL      | 560066      | Bangalore     | Karnataka      | IN         |
+|        2000 | 1 Mandela Way      | 8001        | Cape Town     | Western Cape   | ZA         |
++-------------+--------------------+-------------+---------------+----------------+------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM departments;
++---------------+-----------------+-------------+
+| department_id | department_name | location_id |
++---------------+-----------------+-------------+
+|            10 | Administration  |        1000 |
+|            20 | Marketing       |        1700 |
+|            30 | Sales           |        1700 |
+|            40 | Finance         |        1800 |
+|            50 | IT              |        1900 |
++---------------+-----------------+-------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM jobs;
++--------+----------------------+------------+------------+
+| job_id | job_title            | min_salary | max_salary |
++--------+----------------------+------------+------------+
+| J01    | Administrator        |   10000.00 |   15000.00 |
+| J02    | Marketing Specialist |    7000.00 |   12000.00 |
+| J03    | Sales Manager        |   12000.00 |   18000.00 |
+| J04    | Finance Analyst      |   10000.00 |   14000.00 |
+| J05    | IT Specialist        |    9000.00 |   13000.00 |
++--------+----------------------+------------+------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM employees;
++-------------+------------+-----------+-----------------------+--------------+------------+--------+----------+------------+---------------+
+| employee_id | first_name | last_name | email                 | phone_number | hire_date  | job_id | salary   | manager_id | department_id |
++-------------+------------+-----------+-----------------------+--------------+------------+--------+----------+------------+---------------+
+|         101 | John       | Doe       | jdoe@example.com      | 1234567890   | 2020-01-15 | J01    | 12000.00 |       NULL |            10 |
+|         102 | Jane       | Smith     | jsmith@example.com    | 9876543210   | 2019-03-10 | J02    |  8000.00 |        101 |            20 |
+|         103 | Alice      | Johnson   | ajohnson@example.com  | 5556667777   | 2018-11-25 | J03    | 15000.00 |        101 |            30 |
+|         104 | Robert     | Taylor    | rtaylor@example.com   | 8889990000   | 2021-07-01 | J04    | 11000.00 |        102 |            40 |
+|         105 | Linda      | Williams  | lwilliams@example.com | 4445556666   | 2022-05-12 | J05    |  9500.00 |        103 |            50 |
++-------------+------------+-----------+-----------------------+--------------+------------+--------+----------+------------+---------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM dependents;
++--------------+------------+-----------+--------------+-------------+
+| dependent_id | first_name | last_name | relationship | employee_id |
++--------------+------------+-----------+--------------+-------------+
+|            1 | Anna       | Doe       | Daughter     |         101 |
+|            2 | Michael    | Smith     | Son          |         102 |
+|            3 | Emily      | Johnson   | Spouse       |         103 |
+|            4 | Sophia     | Taylor    | Daughter     |         104 |
+|            5 | James      | Williams  | Son          |         105 |
++--------------+------------+-----------+--------------+-------------+
+5 rows in set (0.00 sec)
+
+mysql> select * from employees,departments where departments.location_id=1700 and employees.department_id=departments.department_id;
++-------------+------------+-----------+----------------------+--------------+------------+--------+----------+------------+---------------+---------------+-----------------+-------------+
+| employee_id | first_name | last_name | email                | phone_number | hire_date  | job_id | salary   | manager_id | department_id | department_id | department_name | location_id |
++-------------+------------+-----------+----------------------+--------------+------------+--------+----------+------------+---------------+---------------+-----------------+-------------+
+|         102 | Jane       | Smith     | jsmith@example.com   | 9876543210   | 2019-03-10 | J02    |  8000.00 |        101 |            20 |            20 | Marketing       |        1700 |
+|         103 | Alice      | Johnson   | ajohnson@example.com | 5556667777   | 2018-11-25 | J03    | 15000.00 |        101 |            30 |            30 | Sales           |        1700 |
++-------------+------------+-----------+----------------------+--------------+------------+--------+----------+------------+---------------+---------------+-----------------+-------------+
+2 rows in set (0.02 sec)
+
+mysql> select * from employees,departments where departments.location_id<>1700 and employees.department_id=departments.department_id;
++-------------+------------+-----------+-----------------------+--------------+------------+--------+----------+------------+---------------+---------------+-----------------+-------------+
+| employee_id | first_name | last_name | email                 | phone_number | hire_date  | job_id | salary   | manager_id | department_id | department_id | department_name | location_id |
++-------------+------------+-----------+-----------------------+--------------+------------+--------+----------+------------+---------------+---------------+-----------------+-------------+
+|         101 | John       | Doe       | jdoe@example.com      | 1234567890   | 2020-01-15 | J01    | 12000.00 |       NULL |            10 |            10 | Administration  |        1000 |
+|         104 | Robert     | Taylor    | rtaylor@example.com   | 8889990000   | 2021-07-01 | J04    | 11000.00 |        102 |            40 |            40 | Finance         |        1800 |
+|         105 | Linda      | Williams  | lwilliams@example.com | 4445556666   | 2022-05-12 | J05    |  9500.00 |        103 |            50 |            50 | IT              |        1900 |
++-------------+------------+-----------+-----------------------+--------------+------------+--------+----------+------------+---------------+---------------+-----------------+-------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from employees
+    -> order by salary desc
+    -> limit 1;
++-------------+------------+-----------+----------------------+--------------+------------+--------+----------+------------+---------------+
+| employee_id | first_name | last_name | email                | phone_number | hire_date  | job_id | salary   | manager_id | department_id |
++-------------+------------+-----------+----------------------+--------------+------------+--------+----------+------------+---------------+
+|         103 | Alice      | Johnson   | ajohnson@example.com | 5556667777   | 2018-11-25 | J03    | 15000.00 |        101 |            30 |
++-------------+------------+-----------+----------------------+--------------+------------+--------+----------+------------+---------------+
+1 row in set (0.02 sec)
+
+
+mysql> select *  from employees where salary>( select avg(salary) from employees);
++-------------+------------+-----------+----------------------+--------------+------------+--------+----------+------------+---------------+
+| employee_id | first_name | last_name | email                | phone_number | hire_date  | job_id | salary   | manager_id | department_id |
++-------------+------------+-----------+----------------------+--------------+------------+--------+----------+------------+---------------+
+|         101 | John       | Doe       | jdoe@example.com     | 1234567890   | 2020-01-15 | J01    | 12000.00 |       NULL |            10 |
+|         103 | Alice      | Johnson   | ajohnson@example.com | 5556667777   | 2018-11-25 | J03    | 15000.00 |        101 |            30 |
++-------------+------------+-----------+----------------------+--------------+------------+--------+----------+------------+---------------+
+2 rows in set (0.05 sec)
+
+mysql> select d.department_id,d.department_name from departments as d,employees as e where d.department_id=e.department_id and e.salary>10000;
++---------------+-----------------+
+| department_id | department_name |
++---------------+-----------------+
+|            10 | Administration  |
+|            30 | Sales           |
+|            40 | Finance         |
++---------------+-----------------+
+3 rows in set (0.03 sec)
+
+mysql> select d.department_id,d.department_name from departments as d,employees as e where d.department_id=e.department_id and e.salary<=10000;
++---------------+-----------------+
+| department_id | department_name |
++---------------+-----------------+
+|            20 | Marketing       |
+|            50 | IT              |
++---------------+-----------------+
+2 rows in set (0.00 sec)
+
+mysql> select * from employees e where salary>(select min(salary) from employees where department_id=e.department_id);
+Empty set (0.00 sec)
+
+
+mysql> select * from employees e where salary>=(select max(salary) from employees where department_id=e.department_id);
++-------------+------------+-----------+-----------------------+--------------+------------+--------+----------+------------+---------------+
+| employee_id | first_name | last_name | email                 | phone_number | hire_date  | job_id | salary   | manager_id | department_id |
++-------------+------------+-----------+-----------------------+--------------+------------+--------+----------+------------+---------------+
+|         101 | John       | Doe       | jdoe@example.com      | 1234567890   | 2020-01-15 | J01    | 12000.00 |       NULL |            10 |
+|         102 | Jane       | Smith     | jsmith@example.com    | 9876543210   | 2019-03-10 | J02    |  8000.00 |        101 |            20 |
+|         103 | Alice      | Johnson   | ajohnson@example.com  | 5556667777   | 2018-11-25 | J03    | 15000.00 |        101 |            30 |
+|         104 | Robert     | Taylor    | rtaylor@example.com   | 8889990000   | 2021-07-01 | J04    | 11000.00 |        102 |            40 |
+|         105 | Linda      | Williams  | lwilliams@example.com | 4445556666   | 2022-05-12 | J05    |  9500.00 |        103 |            50 |
++-------------+------------+-----------+-----------------------+--------------+------------+--------+----------+------------+---------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT AVG(avg_salary) FROM (SELECT AVG(salary) AS avg_salary FROM employees GROUP BY department_id) AS dept_avg;
++------------------+
+| AVG(avg_salary)  |
++------------------+
+| 11100.0000000000 |
++------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT employee_id, salary, 
+    ->     (SELECT AVG(salary) FROM employees) AS avg_salary, 
+    ->     salary - (SELECT AVG(salary) FROM employees) AS salary_diff
+    -> FROM employees;
++-------------+----------+--------------+--------------+
+| employee_id | salary   | avg_salary   | salary_diff  |
++-------------+----------+--------------+--------------+
+|         101 | 12000.00 | 11100.000000 |   900.000000 |
+|         102 |  8000.00 | 11100.000000 | -3100.000000 |
+|         103 | 15000.00 | 11100.000000 |  3900.000000 |
+|         104 | 11000.00 | 11100.000000 |  -100.000000 |
+|         105 |  9500.00 | 11100.000000 | -1600.000000 |
++-------------+----------+--------------+--------------+
+5 rows in set (0.05 sec)
+
+mysql> SELECT * FROM employees AS e
+    -> WHERE salary > (SELECT AVG(salary) FROM employees WHERE department_id = e.department_id);
+Empty set (0.00 sec)
+
+mysql> select * from employees as e where employee_id not in(select employee_id from dependents);
+Empty set (0.00 sec)
+
+
+SELECT first_name, last_name, department_name 
+    -> FROM employees 
+    -> JOIN departments ON employees.department_id = departments.department_id 
+    -> WHERE departments.department_id IN (1, 2, 3);
